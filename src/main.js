@@ -19,8 +19,8 @@ let doodler = {
 }
 let velocityX = 0; 
 let velocityY = 0; 
-let initialVelocityY = -8; 
-let gravity = 0.4;
+let initialVelocityY = -6; 
+let gravity = 0.2;
 
 let platformArray = [];
 let platformWidth = 60;
@@ -59,62 +59,69 @@ window.onload = function() {
 function update() {
     requestAnimationFrame(update);
     if (gameOver) {
+        context.clearRect(0, 0, board.width, board.height);
+        context.fillStyle = "white";
+        context.font = "16px sans-serif";
+        context.fillText("Game Over: Press 'Space' to Restart", boardWidth / 7, boardHeight * 7 / 8);
+        context.fillText("Score: " + score, boardWidth / 2 - 50, boardHeight / 2);
         return;
     }
-    context.clearRect(0, 0, board.width, board.height);
 
+    context.clearRect(0, 0, board.width, board.height);
     doodler.x += velocityX;
     if (doodler.x > boardWidth) {
         doodler.x = 0;
-    }
-    else if (doodler.x + doodler.width < 0) {
+    } else if (doodler.x + doodler.width < 0) {
         doodler.x = boardWidth;
     }
 
     velocityY += gravity;
     doodler.y += velocityY;
+
     if (doodler.y > board.height) {
         gameOver = true;
     }
+
     context.drawImage(doodler.img, doodler.x, doodler.y, doodler.width, doodler.height);
 
     for (let i = 0; i < platformArray.length; i++) {
         let platform = platformArray[i];
-        if (velocityY < 0 && doodler.y < boardHeight*3/4) {
-            platform.y -= initialVelocityY; 
+
+        if (velocityY < 0 && doodler.y < boardHeight * 3 / 4) {
+            platform.y -= initialVelocityY;
         }
+
         if (detectCollision(doodler, platform) && velocityY >= 0) {
-            velocityY = initialVelocityY; 
+            velocityY = initialVelocityY;
+            score += 10;
+            if (score > maxScore) {
+                maxScore = score;
+            }
         }
+
         context.drawImage(platform.img, platform.x, platform.y, platform.width, platform.height);
     }
 
     while (platformArray.length > 0 && platformArray[0].y >= boardHeight) {
-        platformArray.shift(); 
-        newPlatform(); 
+        platformArray.shift();
+        newPlatform();
     }
 
-    updateScore();
     context.fillStyle = "white";
     context.font = "16px sans-serif";
-    context.fillText(score, 5, 20);
-
-    if (gameOver) {
-        context.fillText("Game Over: Press 'Space' to Restart", boardWidth/7, boardHeight*7/8);
-    }
+    context.fillText("Score: " + score, 5, 20);
 }
 
 function moveDoodler(e) {
     if (e.code == "ArrowRight" || e.code == "KeyD") { 
-        velocityX = 4;
+        velocityX = 2;
         doodler.img = doodlerRightImg;
     }
     else if (e.code == "ArrowLeft" || e.code == "KeyA") { 
-        velocityX = -4;
+        velocityX = -2;
         doodler.img = doodlerLeftImg;
     }
     else if (e.code == "Space" && gameOver) {
-
         doodler = {
             img : doodlerRightImg,
             x : doodlerX,
@@ -180,14 +187,22 @@ function detectCollision(a, b) {
 }
 
 function updateScore() {
-    let points = Math.floor(50*Math.random());
-    if (velocityY < 0) {
-        maxScore += points;
-        if (score < maxScore) {
-            score = maxScore;
+    isOnPlatform = false;
+
+    for (let i = 0; i < platformArray.length; i++) {
+        let platform = platformArray[i];
+        if (detectCollision(doodler, platform) && velocityY >= 0) {
+            isOnPlatform = true;
+            break;
         }
     }
-    else if (velocityY >= 0) {
-        maxScore -= points;
+
+    if (!isOnPlatform) {
+        score += 1;
+    }
+
+    score = Math.max(0, Math.floor(score));
+    if (score > maxScore) {
+        maxScore = score;
     }
 }
