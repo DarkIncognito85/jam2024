@@ -63,7 +63,7 @@ function update() {
         context.fillStyle = "white";
         context.font = "16px sans-serif";
         context.fillText("Game Over: Press 'Space' to Restart", boardWidth / 7, boardHeight * 7 / 8);
-        context.fillText("Score: " + score, boardWidth / 2 - 50, boardHeight / 2);
+        context.fillText("Score: " + score + " km", boardWidth / 2 - 50, boardHeight / 2);
         return;
     }
 
@@ -109,7 +109,7 @@ function update() {
 
     context.fillStyle = "white";
     context.font = "16px sans-serif";
-    context.fillText("Score: " + score, 5, 20);
+    context.fillText("Score: " + score + " km", 5, 20);
 }
 
 function moveDoodler(e) {
